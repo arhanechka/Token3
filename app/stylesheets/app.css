@@ -23,14 +23,14 @@ button {
 
 h1, h2 {
   display: inline-block;
-  vertical-align: middle;
+
   margin-top: 0px;
   margin-bottom: 10px;
 }
 
 h2 {
   color: #AAA;
-  font-size: 32px;
+  font-size: 28px;
 }
 
 h3 {

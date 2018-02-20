@@ -47,11 +47,17 @@ window.App = {
 
   getTokenInstance: async function () {
     let crowdsale = await Crowdsale.deployed()
-    console.log(crowdsale);
+    console.log(crowdsale.address);
+    console.log("crowdsale.address");
     let tokenAddress = await crowdsale.token()
+    console.log("tokenAddress");
     console.log(tokenAddress);
     let avraInstance = AvraToken.at(tokenAddress)
     console.log(avraInstance);
+    let supply = document.getElementById("supply");
+      supply.innerHTML = await avraInstance.INITIAL_SUPPLY();
+    let contract_element = document.getElementById("contract_address");
+    contract_element.innerHTML = crowdsale.address
     return avraInstance
   },
 
@@ -60,20 +66,37 @@ window.App = {
     status.innerHTML = message
   },
 
-  refreshBalance: function () {
+ refreshBalance: async function () {
     var self = this
-    self.getTokenInstance()
-      .then(avraInstance =>{
-        console.log("this is AvraTokenContract");
-        console.log(avraInstance);
-        avraInstance.getStartTime().then (result => (console.log(result)));
-      //   avraInstance.balanceOf(account).then(balance => { //get balance of my account in AvraCoin
-      //     console.log(balance.toString(10));
-      //     var balance_element = document.getElementById("balance");
-      //     balance_element.innerHTML = balance.toString(10);
-      // })
-      })
+    var balance_element;
+    var avraInstance = await self.getTokenInstance();
 
+
+    let startTime = await avraInstance.startTime();
+    console.log(startTime);
+   let endTime = await avraInstance.endTime();
+   console.log(endTime);
+   let actualTime = await avraInstance.actualTime();
+   console.log(actualTime);
+
+   // let ifBalanceRefreshed = await avraInstance.withdrawPayments();
+   // console.log("ifBalanceRefreshed")
+   // console.log(ifBalanceRefreshed)
+    // if (ifBalanceRefreshed)
+    // {
+      avraInstance.balanceOf(account).then(balance => { //get balance of my account in AvraCoin
+      console.log(balance.toString(10));
+      balance_element = document.getElementById("balance");
+      balance_element.innerHTML = balance.toString(10);
+   })
+   // self.getTokenInstance().
+   // then(avraInstance=>(avraInstance.withdrawPayments()
+   //   .then(function(result) {
+   //     alert(result);
+   //   }).catch(function(err) {
+   //     console.log("err.message");
+   //     console.log(err.message);
+   //   })))
   },
 
 
@@ -85,23 +108,27 @@ window.App = {
         console.log("This is instance")
         console.log(inst)
         inst.sendTransaction({ from: account, value: web3.toWei(amount, "ether")});
-        self.refreshBalance();
+        self.setStatus("You have bought AVRA! Please wait for 5 minutes for checking balance!")
+        return self.refreshBalance();
       })
   },
-  transferCoin: function() {
+  transferCoin: async function() {
     var self = this;
     var amount = parseInt(document.getElementById("amount1").value);
     var receiver = document.getElementById("receiver").value;
-    //  function transferCoins(){
-    //   self.getAvraCoinInstance(function (globalAvraCoinContract){
-    //     globalAvraCoinContract.transfer({from: account}, {to: receiver}, amount);
-    //    // this.setStatus("Initiating transaction... (please wait)");
-    //  //   self.setStatus("Transaction complete!");
-    //     self.refreshBalance();})
-    //   }
-    //   transferCoins();
+    self.getTokenInstance().
+    then(avraInstance=>(avraInstance.transfer(receiver, amount, {from: account})
+    .then(function(result) {
+      alert('Transfer Successful!');
+      self.setStatus("You successully transfer "+amount+" AVRA to account "+receiver)
+      return self.refreshBalance();
+    }).catch(function(err) {
+      console.log(err.message);
+    })))
 
-  }
+},
+
+
 
 };
 

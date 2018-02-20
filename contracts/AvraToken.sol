@@ -12,7 +12,13 @@ contract AvraToken is StandardToken, Ownable {
 
     uint256 public INITIAL_SUPPLY = 1000000 * (10 ** decimals);
 
-    uint public startTime = 0;
+    uint256 public startTime = 0;
+
+    uint256 public endTime = 0;
+
+    uint public actualTime = 0;
+
+    string public ann = "Ann";
 
     function AvraToken() {
         totalSupply_ = INITIAL_SUPPLY;
@@ -23,21 +29,24 @@ contract AvraToken is StandardToken, Ownable {
         require(_to != address(0));
         require(_amount <= balances[msg.sender]);
         startTime = now;
+        endTime = now+2*60;
         balances[msg.sender] = balances[msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
         Transfer(address(0), _to, _amount);
         return true;
     }
-    function getStartTime() public view returns (uint256){
-        return startTime;
+
+    function () external payable {
+        withdrawPayments();
     }
 
-    function withdrawPayments() public view returns (bool) {
-        if (now >= getStartTime() + 5*60) {
+    function withdrawPayments() public returns (bool) {
+        actualTime = now;
+        if (actualTime >= endTime) {
             return true;
         }
         else {
             return false;
         }
     }
-    }
+}
